@@ -49,10 +49,11 @@ def get_fp(atoms,cal_list= [36]):
 
 if __name__ == '__main__':
 	Gaussian_Noise = False
+	seed = 1
 	if Gaussian_Noise:
 		np.random.seed(seed)
 		noise_std = 0.05
-	seed = 1
+		seed = 11
 	
 	db = connect('../db/AgPd_acrolein_334_pseudo.db')
 	N_clusters = db.count()
