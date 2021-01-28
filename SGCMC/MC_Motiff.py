@@ -1,7 +1,11 @@
+import sys
+sys.path.append("../ML_Models")
+
 from ase.build import fcc111
 from ase import Atom, Atoms
 from ase.visualize import view
-from MC_Motiff_Helper import site_locator, cal_energy
+from MC_Motiff_Helper import site_locator
+from preprocess import cal_energy
 import time
 import numpy as np
 from copy import deepcopy
@@ -9,10 +13,7 @@ from ase.io import Trajectory
 from ase.neighborlist import NeighborList, NewPrimitiveNeighborList
 from ase.units import kB
 import json
-from ase.io import xyz
-import sys
 import os
-from sklearn.cluster import KMeans
 import pickle
 
 seed = int(sys.argv[1])
@@ -23,8 +24,8 @@ m_seed = int(sys.argv[5])
 np.random.seed(seed)
 
 
-slab_model_dir = f'AgPd_slab_334_1'
-site_model_dir = f'acrolein_adsorption_{m_seed}'
+slab_model_dir = f'../ML_Models/AgPd_slab_334_1'
+site_model_dir = f'../ML_Models/acrolein_adsorption_{m_seed}'
 MC_model_path = f'AgPd_acrolein_MC_{m_seed}'
 
 
@@ -86,7 +87,7 @@ all_active_sites = sl.get_all_active_sites()
 t2 = time.time()
 
 # Get adsorption energy TODO: get_site_energies()
-site_energies = sl.get_site_energies_Kmeans(all_active_sites)
+site_energies = sl.get_site_energies(all_active_sites)
 t3 = time.time()
 
 # Fill the sites based on adsortpion energy 
@@ -165,13 +166,13 @@ for epo in range(epochs):
 				potential_open_sites = np.append(potential_open_sites, p_s)
 		# This will make use of the updated slab
 		active_sites = sl.get_active_sites(potential_open_sites)	
-		site_energies = sl.get_site_energies_Kmeans(active_sites)
+		site_energies = sl.get_site_energies(active_sites)
 		N_acrolein, occupied_sites, occupied_dict = sl.allocate_sites(site_energies, active_sites, temp_occupied_sites, temp_occupied_dict)
 		new_affected_sites = np.array(list(set(occupied_sites) - set(temp_occupied_sites)))
 		temp_sites_energy = np.sum([occupied_dict[str(int(s))] for s in new_affected_sites])
 	else:
 		# Calculate new adsorption energy 
-		temp_site_energies = sl.get_site_energies_Kmeans(affected_sites)
+		temp_site_energies = sl.get_site_energies(affected_sites)
 		for a_s, s_e in zip(affected_sites, temp_site_energies):
 			occupied_dict[str(int(a_s))] = s_e 
 		temp_sites_energy = np.sum([occupied_dict[str(int(s))] for s in affected_sites])
@@ -213,9 +214,6 @@ for epo in range(epochs):
 	elif np.exp(-(dE - cp) / (kB * T)) > np.random.rand():
 		slab = temp_slab
 		E += [E[-1]+dE]
-		debugfile.write(f'{success}:{occupied_sites}\n')
-		debugfile.write(f'{success}:{occupied_dict}\n')
-		debugfile.flush()
 		success += 1
 		n_Pd = n_Pd_temp
 		logfile.write(f'{E[-1]}\n')

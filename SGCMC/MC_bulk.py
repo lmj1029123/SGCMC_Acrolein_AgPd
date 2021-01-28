@@ -97,7 +97,7 @@ nl2.update(atoms)
 
 E = []
 
-E += [cal_energy(bulk_model, sym_params, params_set, atoms)]
+E += [cal_energy(bulk_model_dir, atoms)]
 
 
 success = 0
@@ -110,7 +110,7 @@ for epo in range(epochs):
     indices0, _ = nl1.get_neighbors(ind)
     indices1, _ = nl2.get_neighbors(ind)
     cal_list = np.array([list(indices1).index(i) for i in indices0])
-    E1 = cal_energy(bulk_model, sym_params, params_set, atoms[indices1], cal_list)
+    E1 = cal_energy(bulk_model_dir, atoms[indices1], cal_list)
 
     temp_atoms = atoms.copy()
     if temp_atoms[ind].symbol == 'Ag':
@@ -121,7 +121,7 @@ for epo in range(epochs):
         label = 'Pd2Ag'
         
   
-    E2 = cal_energy(bulk_model, sym_params, params_set, temp_atoms[indices1], cal_list)
+    E2 = cal_energy(bulk_model_dir, temp_atoms[indices1], cal_list)
     dE = E2- E1
     if label == 'Ag2Pd':
         cp = d_cp
