@@ -10,7 +10,7 @@ adsroption_model.py is used to generate the model for adsortpion energy.
 
 The codes for running the semi-grand canonical Monte-Carlo simulation are in the SGCMC directory. 
 
-MC_bulk.py is used to do MC simulation on the AgPd bulk to obtain the $\Delta$ chemical potential.
+MC_bulk.py is used to do MC simulation on the AgPd bulk to obtain the \Delta chemical potential.
 
 MC_slab.py is used to do MC simulation on the AgPd slab to study the surface segregation under vacuum.
 
@@ -19,7 +19,7 @@ MC_Motiff.py is used to do MC simulation on the AgPd slab with acrolein.
 For all these three scripts we do 
 
 #+BEGIN_SRC sh
-python MC_{*}.py "random seed" "initial number of Pd" "\Delta$ chemical potential" "T" "model seed" 
+python MC_{*}.py "random seed" "initial number of Pd" "\Delta chemical potential" "T" "model seed" 
 #+END_SRC
 
 
