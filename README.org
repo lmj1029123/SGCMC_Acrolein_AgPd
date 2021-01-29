@@ -1,0 +1,28 @@
+* ML Model
+
+The codes used to train the machine learning models are in the ML_Models directory.
+
+slab_train.py and bulk_train.py are used to train the models for AgPd bulk and AgPd slab. They are essentially the same code but with different training dataset.
+
+adsroption_model.py is used to generate the model for adsortpion energy.
+
+* SGCMC
+
+The codes for running the semi-grand canonical Monte-Carlo simulation are in the SGCMC directory. 
+
+MC_bulk.py is used to do MC simulation on the AgPd bulk to obtain the $\Delta$ chemical potential.
+
+MC_slab.py is used to do MC simulation on the AgPd slab to study the surface segregation under vacuum.
+
+MC_Motiff.py is used to do MC simulation on the AgPd slab with acrolein.
+
+For all these three scripts we do 
+
+#+BEGIN_SRC sh
+python MC_{*}.py "random seed" "initial number of Pd" "\Delta$ chemical potential" "T" "model seed" 
+#+END_SRC
+
+
+* Plotting
+
+The scripts used to generate the plots in the paper are in the Plotting directory.
