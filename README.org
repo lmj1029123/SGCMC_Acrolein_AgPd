@@ -22,6 +22,27 @@ For all these three scripts we do
 python MC_{*}.py "random seed" "initial number of Pd" "\Delta chemical potential" "T" "model seed" 
 #+END_SRC
 
+The MC simulation will output a log file and a json file. The json file contains a dictionary that specifies the configuration of the chemical system at each MC step.
+
+
+For system with slab o, there are 3 keys:
+size: size of the slab.
+Pd: index of Pd.
+energy: total energy of the system.
+
+
+For system with slab and acrolein, there are 9 keys:
+size: size of the slab.
+h : the height that the pseudo atom is placed on the sites.
+cutoff: cutoff radius used for fingerprinting.
+site_distance: the distance between pseudo atoms.
+max_N_acrolein: maximum number of acrolein allowed on the surface.
+1_Pd: number of Pd on the first layer.
+2_Pd: number of Pd on the second layer.
+Pd: index of Pd in the variable layers. E.g. index 1 is the first atom in the second layer. 
+site: index of the sites
+
+
 
 * Plotting
 
