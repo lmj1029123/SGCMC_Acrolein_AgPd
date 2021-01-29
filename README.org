@@ -25,7 +25,7 @@ python MC_{*}.py "random seed" "initial number of Pd" "\Delta chemical potential
 The MC simulation will output a log file and a json file. The json file contains a dictionary that specifies the configuration of the chemical system at each MC step.
 
 
-For system with slab o, there are 3 keys:
+For system with slab or bulk, there are 3 keys:
 
 size: size of the slab.
 
