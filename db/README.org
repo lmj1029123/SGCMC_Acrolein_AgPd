@@ -1,0 +1,11 @@
+
+
+[[./AgPd_acrolein_334_pseudo.db]]: This is the label dataset for the adsorption energy.
+
+[[./AgPd_bulk_master.db]]: This contains the dataset for training the SingleNN for bulk energy.
+
+[[./AgPd_slab_225.db]]: This contains the dataset for training the SingleNN for slab energy in simulation with 5-layer slab.
+
+[[./AgPd_slab_334.db]]: This contains the dataset for training the SingleNN for slab energy in simulation with 4-layer slab.
+
+[[./dft-analysis.db]]: This contains the dataset for calculating the segregation energy with acrolein.
