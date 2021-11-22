@@ -15,12 +15,6 @@ from SNN import SingleNNTrainer
 
 
 
-
-
-
-
-
-
 if __name__ == '__main__':
     device=torch.device('cpu')
     is_force = False
@@ -46,8 +40,8 @@ if __name__ == '__main__':
     convergence = {'E_cov':0.0005,'F_cov':0.005}
 
     # NN architectures 
-    n_nodes = [30,30]
-    activations = [torch.nn.Tanh(), torch.nn.Tanh()]
+    n_nodes = [30]*2
+    activations = [torch.nn.Tanh()]*2
 
 
     # Optimizer parameters
