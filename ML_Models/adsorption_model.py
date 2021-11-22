@@ -1,20 +1,20 @@
 import sys
 sys.path.append("../SimpleNN")
 sys.path.append("../Utils")
-
 from fp_calculator import set_sym, calculate_fp
+
 import os
 import shutil
 from ase.db import connect
-from sklearn.cluster import KMeans
+from ase.data import atomic_numbers
 import numpy as np
 import torch
-from ase.data import atomic_numbers
 from ContextManager import cd
 import pickle
 import matplotlib.pyplot as plt
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.linear_model import LinearRegression
+from sklearn.cluster import KMeans
 
 def get_fp(atoms,cal_list= [36]):
 	
