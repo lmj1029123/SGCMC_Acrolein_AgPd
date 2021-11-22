@@ -15,8 +15,6 @@ from SNN import SingleNNTrainer
 
 
 
-
-
 if __name__ == '__main__':
     device=torch.device('cpu')
     is_force = False
@@ -39,8 +37,7 @@ if __name__ == '__main__':
     # NN architectures 
     n_nodes = [30] * 2
     activations = [torch.nn.Tanh()]*2
-    # n_nodes = [100,100,100]
-    # activations = [torch.nn.Tanh(), torch.nn.Tanh(), torch.nn.Tanh()]
+
 
     # Optimizer parameters
     opt_method = 'lbfgs'
@@ -69,7 +66,6 @@ if __name__ == '__main__':
     db = connect(dbfile)
 
     elements = ['Pd','Ag']
-    #elements = ['Pd','Ag']
     nelem = len(elements)
 
     # This is the energy of the metal in its ground state structure
@@ -84,7 +80,6 @@ if __name__ == '__main__':
     cutoff = 6.5
     g2_etas = [0.05, 4.0, 20.0]
     g2_Rses = [0.0]
-    #g4_etas=[0.01,0.1]
     g4_etas=[0.05]
     g4_zetas=[1.0, 4.0]
     g4_lambdas=[-1.0, 1.0]
