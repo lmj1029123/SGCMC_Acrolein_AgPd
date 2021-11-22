@@ -50,7 +50,7 @@ def calculate_fp(atoms, elements, params_set, cal_list=None):
 	type_num = dict()
 	type_idx = dict()
 
-	# This is the list of atoms that will calculate the fingerprints 
+	# This is the list of atoms that will calculate the fingerprints
 	if cal_list is not None:
 		cal_mask = np.zeros(len(atoms), dtype = np.intc) == 1
 		cal_mask[cal_list] = True
@@ -70,7 +70,7 @@ def calculate_fp(atoms, elements, params_set, cal_list=None):
 		# if not, it could generate bug in training process for force training
 		type_idx[jtem] = np.arange(atom_num)[tmp]
 	atom_i_p = ffi.cast("int *", atom_i.ctypes.data)
-	
+
 
 
 	res = dict()
@@ -102,7 +102,7 @@ def calculate_fp(atoms, elements, params_set, cal_list=None):
 
 		x = np.zeros([cal_num, params_set[jtem]['num']], dtype=np.float64, order='C')
 		dx = np.zeros([cal_num, atom_num * params_set[jtem]['num'] * 3], dtype=np.float64, order='C')
-		
+
 		#weights_p = ffi.cast("double **", params_set[jtem]['weights'].ctypes.data)
 		weight_id_p = ffi.cast("int *", params_set[jtem]['weight_id'].ctypes.data)
 
@@ -133,11 +133,11 @@ def calculate_fp(atoms, elements, params_set, cal_list=None):
 			else:
 				assert errno == 0
 
-		
+
 		if type_num[jtem] != 0:
 			res['x'][jtem] = np.array(comm.gather(x, root=0))
 			res['dx'][jtem] = np.array(comm.gather(dx, root=0))
-			
+
 			if comm.rank == 0:
 				res['x'][jtem] = np.concatenate(res['x'][jtem], axis=0).reshape([type_num[jtem], params_set[jtem]['num']])
 				res['dx'][jtem] = np.concatenate(res['dx'][jtem], axis=0).\
@@ -157,7 +157,7 @@ def set_sym(elements, Gs, cutoff, g2_etas=None, g2_Rses=None, g4_etas=None, g4_z
 	specify symmetry function parameters for each element
 	parameters for each element contain:
 	integer parameters: [which sym func, surrounding element 1, surrounding element 1]
-						surrouding element starts from 1. For G2 sym func, the third 
+						surrouding element starts from 1. For G2 sym func, the third
 						element is 0. For G4 and G5, the order of the second and the
 						third element does not matter.
 	double parameters:  [cutoff radius, 3 sym func parameters]
@@ -175,10 +175,10 @@ def set_sym(elements, Gs, cutoff, g2_etas=None, g2_Rses=None, g4_etas=None, g4_z
 		weight_id = []
 		for G in Gs:
 			if G == 2:
-				weight_id += [-1 for el1 in range(1, len(elements)+1) 
+				weight_id += [-1 for el1 in range(1, len(elements)+1)
 										   for g2_eta in g2_etas
 										   for g2_Rs in g2_Rses]
-				int_params += [[G, el1, 0] for el1 in range(1, len(elements)+1) 
+				int_params += [[G, el1, 0] for el1 in range(1, len(elements)+1)
 										   for g2_eta in g2_etas
 										   for g2_Rs in g2_Rses]
 				double_params += [[cutoff, g2_eta/ratio, g2_Rs, 0] for el1 in range(1, len(elements)+1)
@@ -200,7 +200,7 @@ def set_sym(elements, Gs, cutoff, g2_etas=None, g2_Rses=None, g4_etas=None, g4_z
 					int_params += [[G, 0, 0] for g4_eta in g4_etas
 											 for g4_zeta in g4_zetas
 											 for g4_lambda in g4_lambdas]
-					double_params += [[cutoff, g4_eta/ratio, g4_zeta, g4_lambda] 
+					double_params += [[cutoff, g4_eta/ratio, g4_zeta, g4_lambda]
 												 for g4_eta in g4_etas
 												 for g4_zeta in g4_zetas
 												 for g4_lambda in g4_lambdas]
@@ -215,7 +215,7 @@ def set_sym(elements, Gs, cutoff, g2_etas=None, g2_Rses=None, g4_etas=None, g4_z
 											 for g4_eta in g4_etas
 											 for g4_zeta in g4_zetas
 											 for g4_lambda in g4_lambdas]
-				double_params += [[cutoff, g4_eta/ratio, g4_zeta, g4_lambda] 
+				double_params += [[cutoff, g4_eta/ratio, g4_zeta, g4_lambda]
 											 for el1 in range(1, len(elements)+1)
 											 for el2 in range(el1, len(elements)+1)
 											 for g4_eta in g4_etas
@@ -238,9 +238,7 @@ def set_sym(elements, Gs, cutoff, g2_etas=None, g2_Rses=None, g4_etas=None, g4_z
 			params_set[item]['weights'] = np.ones(len(elements), dtype=np.float64).reshape((1,-1))
 			params_set[item]['weights_p'] = _gen_2Darray_for_ffi(params_set[item]['weights'], ffi)
 			params_set[item]['weight_id'] = -np.ones(params_set[item]['num'], dtype=np.intc)
-		#print(params_set[item]['num'])
-		#print(params_set[item]['weights'].shape)
-		#ds
+
 	return params_set
 
 
@@ -281,7 +279,7 @@ def cal_fp_only(atoms, elements, params_set, cal_list= None):
 	#test
 	#cal_list = [0,1,3]
 
-	# This is the list of atoms that will calculate the fingerprints 
+	# This is the list of atoms that will calculate the fingerprints
 	if cal_list is not None:
 		cal_mask = np.zeros(len(atoms), dtype = np.intc) == 1
 		cal_mask[cal_list] = True
@@ -325,7 +323,7 @@ def cal_fp_only(atoms, elements, params_set, cal_list= None):
 		dx = np.zeros([cal_num, atom_num * params_set[jtem]['num'] * 3], dtype=np.float64, order='C')
 
 		weight_id_p = ffi.cast("int *", params_set[jtem]['weight_id'].ctypes.data)
-		
+
 		x_p = _gen_2Darray_for_ffi(x, ffi)
 		dx_p = _gen_2Darray_for_ffi(dx, ffi)
 		errno = lib.calculate_sf(cell_p, cart_p, scale_p, \
@@ -353,7 +351,7 @@ def cal_fp_only(atoms, elements, params_set, cal_list= None):
 			else:
 				assert errno == 0
 
-		
+
 		if type_num[jtem] != 0:
 			res['x'][jtem] = np.array(comm.gather(x, root=0))
 

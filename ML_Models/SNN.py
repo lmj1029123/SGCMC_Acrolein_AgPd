@@ -1,18 +1,17 @@
 import sys
-
 sys.path.append("../SimpleNN")
 """SingleNN potential."""
 from fp_calculator import set_sym, calculate_fp
+from NN import MultiLayerNet
+
+import torch
 from torch.autograd import grad
 from Batch import batch_pad
-import sys
 import time
 import numpy as np
-import torch
+
 import pickle
-from torch.autograd import grad
 from ase.data import chemical_symbols, atomic_numbers
-from NN import MultiLayerNet
 from ase.calculators.calculator import (Calculator, all_changes,
                                         PropertyNotImplementedError)
 import os
@@ -39,7 +38,7 @@ class SingleNN(Calculator):
             model = torch.load(self.model_path+'/best_model')
             ensemble_training = False
         else:
-            ensemble_training = True 
+            ensemble_training = True
             models = []
             ensemble = 0
             end = False
@@ -159,8 +158,6 @@ class SingleNN(Calculator):
             self.results['free_energy'] = self.energy
             self.results['forces'] = self.forces
 
-        if 'stress' in properties:
-            raise PropertyNotImplementedError
 
 
 
@@ -204,18 +201,19 @@ class SingleNNTrainer(object):
         gmax = scaling['gmax'].to(device)
         emin = scaling['emin'].to(device)
         emax = scaling['emax'].to(device)
-        n_val = 0   
+        n_val = 0
         E_cov = convergence['E_cov']
         F_cov = convergence['F_cov']
         t_ids = np.array(list(train_dict.keys()))
         batch_info = batch_pad(train_dict,t_ids)
         b_fp = batch_info['b_fp'].to(device)
 
-        
+
         if is_force:
             b_dfpdX = batch_info['b_dfpdX'].view(b_fp.shape[0],
                                                  b_fp.shape[1]*b_fp.shape[2],
-                                                 b_fp.shape[1]*3).to(device)
+                                                 b_fp.shape[1]*3,
+                                                 ).to(device)
         b_e_mask = batch_info['b_e_mask'].to(device)
         b_fp.requires_grad = True
         eps = 1e-5
@@ -224,20 +222,21 @@ class SingleNNTrainer(object):
         b_e = batch_info['b_e'].view(-1).to(device)
         b_f = batch_info['b_f'].to(device)
 
-        
-        
+
+
         sb_e = ((b_e - emin) / (emax - emin))
         sb_f = (b_f / (emax - emin))
         t1 = time.time()
         logfile.write(f'Batching takes {t1-t0}.\n')
-        
+
         v_ids = np.array(list(val_dict.keys()))
         v_batch_info = batch_pad(val_dict,v_ids)
         v_b_fp = v_batch_info['b_fp'].to(device)
         if is_force:
             v_b_dfpdX = v_batch_info['b_dfpdX'].view(v_b_fp.shape[0],
                                                      v_b_fp.shape[1]*v_b_fp.shape[2],
-                                                     v_b_fp.shape[1]*3).to(device)
+                                                     v_b_fp.shape[1]*3,
+                                                     ).to(device)
         v_b_e_mask = v_batch_info['b_e_mask'].to(device)
         v_b_fp.requires_grad = True
         v_sb_fp = ((v_b_fp - gmin) / (gmax - gmin + eps))
@@ -246,7 +245,7 @@ class SingleNNTrainer(object):
 
         v_b_f = v_batch_info['b_f'].to(device)
 
-    
+
         v_sb_e = ((v_b_e - emin) / (emax - emin))
         v_sb_f = (v_b_f / (emax - emin))
 
@@ -269,13 +268,13 @@ class SingleNNTrainer(object):
                                                E_predict, None, SSE, SAE, scaling, b_e_mask)
                         [E_loss, F_loss, E_MAE, F_MAE, E_RMSE, F_RMSE] = metrics
                         loss = E_coeff * E_loss
-                
+
                     loss.backward(retain_graph=True)
                     return loss
 
                 optimizer.step(closure)
 
-           
+
                 if i % val_interval == 0:
                     n_val += 1
                     Atomic_Es = model(sb_fp)
@@ -296,7 +295,7 @@ class SingleNNTrainer(object):
 
 
 
-                
+
                     v_Atomic_Es = model(v_sb_fp)
                     v_E_predict = torch.sum(v_Atomic_Es * v_b_e_mask, dim = [1,2])
                     if is_force:
@@ -330,7 +329,7 @@ class SingleNNTrainer(object):
                         best_v_F_MAE = v_F_MAE
                         torch.save(model,model_path)
                         n_val = 1
-                    
+
                     logfile.write(f'val, E_RMSE/atom = {v_E_RMSE}, F_RMSE = {v_F_RMSE}\n')
                     logfile.write(f'val, E_MAE/atom = {v_E_MAE}, F_MAE = {v_F_MAE}\n')
                     logfile.flush()
@@ -360,9 +359,9 @@ class SingleNNTrainer(object):
         gmax = scaling['gmax']
         emin = scaling['emin']
         emax = scaling['emax']
-        
 
-        
+
+
         E_loss = SSE(sb_e, E_predict / N_atoms) / len(ids)
         E_MAE = SAE(sb_e, E_predict / N_atoms) / len(ids) * (emax - emin)
         E_RMSE = torch.sqrt(E_loss) * (emax - emin)
@@ -371,7 +370,7 @@ class SingleNNTrainer(object):
             F_MAE = 0
             F_RMSE = 0
         else:
-            F_loss = SSE(sb_f, F_predict) / (3 * torch.sum(N_atoms)) 
+            F_loss = SSE(sb_f, F_predict) / (3 * torch.sum(N_atoms))
             F_MAE = SAE(sb_f, F_predict) / (3 * torch.sum(N_atoms)) * (emax - emin)
             F_RMSE = torch.sqrt(F_loss) * (emax - emin)
             F_max = torch.max(torch.abs(sb_f-F_predict))*(emax-emin)
@@ -407,10 +406,10 @@ class SingleNNTrainer(object):
         sb_fp = (b_fp - gmin) / (gmax - gmin)
         N_atoms = batch_info['N_atoms'].view(-1)
         b_e = batch_info['b_e'].view(-1)
-        b_f = batch_info['b_f'] 
+        b_f = batch_info['b_f']
 
         sb_e = (b_e - emin) / (emax - emin)
-        sb_f = b_f / (emax - emin) 
+        sb_f = b_f / (emax - emin)
 
 
         Atomic_Es = model(sb_fp)
@@ -427,6 +426,3 @@ class SingleNNTrainer(object):
             [E_loss, F_loss, E_MAE, F_MAE, E_RMSE, F_RMSE] = metrics
             loss = E_coeff * E_loss
         return [loss, E_MAE, F_MAE]
-
-
-    
