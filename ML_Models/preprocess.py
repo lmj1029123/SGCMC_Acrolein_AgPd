@@ -97,55 +97,6 @@ def get_scaling(train_dict, fp_scale_method='min_max', e_scale_method='min_max')
 
 
 
-
-# def cal_energy(model, sym_params, params_set, atoms, cal_list = None):    
-#     [Gs, cutoff, g2_etas, g2_Rses, g4_etas, g4_zetas, g4_lambdas, elements, weights, element_energy]=sym_params
-#     if cal_list is None:
-#         N_atoms = len(atoms)
-#     else:
-#         N_atoms = len(cal_list)
-#     nelem = len(elements)
-#     N_sym = params_set[elements[0]]['num']
-    
-#     data = cal_fp_only(atoms, elements, params_set, cal_list = cal_list)
-#     fps = data['x']
-#     fp = torch.zeros((N_atoms,N_sym))
-#     elements_num = torch.tensor([atomic_numbers[ele] for ele in elements])
-#     atom_idx = data['atom_idx'] - 1
-    
-#     a_num = elements_num[atom_idx]
-#     atom_numbers = a_num.repeat_interleave(nelem).view(len(a_num),nelem)
-    
-#     # change to float for pytorch to be able to run without error
-#     if cal_list is not None:
-#         e_mask = (atom_numbers == elements_num).float()[cal_list]
-#         atom_idx = atom_idx[cal_list]
-#     else:
-#         e_mask = (atom_numbers == elements_num).float()
-#     fp_track = [0]*nelem
-#     if element_energy is not None:
-#         element_energy = torch.sum(element_energy * e_mask)
-
-#     for i,idx in enumerate(atom_idx):
-#         ele = elements[idx]
-#         fp[i,:] = torch.tensor(fps[ele][fp_track[idx],:]).float()
-#         fp_track[idx] += 1
-        
-
-#     scaling = model.scaling
-#     gmin = scaling['gmin']
-#     gmax = scaling['gmax']
-#     emin = scaling['emin']
-#     emax = scaling['emax']
-#     sfp = (fp - gmin) / (gmax - gmin+1e-5)
-#     Atomic_Es = model(sfp)
-#     E_predict = torch.sum(torch.sum(Atomic_Es * e_mask,
-# 				    dim = 1)*(emax-emin)+emin,dim=0)
-#     if element_energy is not None:
-#         return (E_predict + element_energy).data.numpy()
-#     else:
-#         return (E_predict).data.numpy()
-
 def cal_energy(model_dir, atoms, cal_list = None):
     sym_params = pickle.load(open(model_dir+"/sym_params.sav", "rb" ))
     [Gs, cutoff, g2_etas, g2_Rses, g4_etas, g4_zetas, g4_lambdas, elements, weights, element_energy]=sym_params
